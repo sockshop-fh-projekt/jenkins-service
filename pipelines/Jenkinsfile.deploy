@@ -59,6 +59,20 @@ pipeline {
         }
       }
     }
+    stage('Deploy service - mirroring') {
+      when {
+        expression {
+          return env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' 
+        }
+      }
+      steps {
+        container('helm') {
+          sh "helm init --client-only"
+          sh "cd ${env.PROJECT} && helm dep update helm-chart/"
+          sh "cd ${env.PROJECT} && helm upgrade --install ${env.PROJECT}-${env.STAGE} ./helm-chart --namespace ${env.STAGE} --recreate-pods"
+        }
+      }
+    }
     stage('Deploy service - blue/green') {
       when {
         expression {
