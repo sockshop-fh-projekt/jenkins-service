@@ -45,12 +45,12 @@ pipeline {
             sh "cd ${env.PROJECT} && sed -i '$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             sh "cd ${env.PROJECT} && sed -i '$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
-            sh "cd ${env.PROJECT} && sed -i '$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            sh "cd ${env.PROJECT} && sed -i '$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ destination:' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            sh "cd ${env.PROJECT} && sed -i '$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ host: carts.staging.svc.cluster.local' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$a-' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$adestination:' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$ahost: carts.staging.svc.cluster.local' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
-            sh "cd ${env.PROJECT} && sed -i '$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ subset: blue' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            sh "cd ${env.PROJECT} && sed -i '$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ weight: 0' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$asubset: blue' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$aweight: 0' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             
             sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: swap_100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             sh "cd ${env.PROJECT} && sed -i \"s#weight: 100#weight: 0#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
