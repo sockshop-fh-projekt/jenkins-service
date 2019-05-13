@@ -87,9 +87,9 @@ pipeline {
             sh "cd ${env.PROJECT} && sed -i '$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
             
-            sh "cd ${env.PROJECT} && sed -i \"$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mirror:\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            sh "cd ${env.PROJECT} && sed -i \"$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ host: carts.staging.svc.cluster.local\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            sh "cd ${env.PROJECT} && sed -i \"$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ subset: green\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mirror:' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ host: carts.staging.svc.cluster.local' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ subset: green' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             
             sh "cd ${env.PROJECT} && sed -i \"s#subset: blue#subset: swap_green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             sh "cd ${env.PROJECT} && sed -i \"s#subset: green#subset: blue#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
