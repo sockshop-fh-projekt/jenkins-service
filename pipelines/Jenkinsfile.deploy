@@ -71,6 +71,35 @@ pipeline {
           sh "cd ${env.PROJECT} && helm dep update helm-chart/"
           sh "cd ${env.PROJECT} && helm upgrade --install ${env.PROJECT}-${env.STAGE} ./helm-chart --namespace ${env.STAGE} --recreate-pods"
         }
+        container("git") {
+          withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+            sh "rm -rf ${env.PROJECT}"
+            sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
+            sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
+            sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
+
+            sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: 100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            
+            sh "cd ${env.PROJECT} && sed -i '$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i '$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
+            
+            sh "cd ${env.PROJECT} && sed -i \"$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mirror:\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ host: carts.staging.svc.cluster.local\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"$ a \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ subset: green\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            
+            sh "cd ${env.PROJECT} && sed -i \"s#subset: blue#subset: swap_green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"s#subset: green#subset: blue#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"s#subset: swap_green#subset: green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
+            sh "cd ${env.PROJECT} && git add ."
+            sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green and added mirroring"
+            sh "cd ${env.PROJECT} && git push"
+          }
+        }
       }
     }
     stage('Deploy service - blue/green') {
