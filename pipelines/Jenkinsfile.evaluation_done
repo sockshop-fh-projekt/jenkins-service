@@ -32,20 +32,22 @@ pipeline {
     label 'kubegit'
   }
   stages {
-    stage('Activate mirrored version'){
-      if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
-        container("git") {
-          withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-            sh "rm -rf ${env.PROJECT}"
-            sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
-            sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
-            sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
+    stage('Activate mirrored version'){      
+      script {
+        if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
+          container("git") {
+            withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+              sh "rm -rf ${env.PROJECT}"
+              sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
+              sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
+              sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
-            sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: test_works#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml" 
+              sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: test_works#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml" 
 
-            sh "cd ${env.PROJECT} && git add ."
-            sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green and removed mirroring'"
-            sh "cd ${env.PROJECT} && git push"
+              sh "cd ${env.PROJECT} && git add ."
+              sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green and removed mirroring'"
+              sh "cd ${env.PROJECT} && git push"
+            }
           }
         }
       }
