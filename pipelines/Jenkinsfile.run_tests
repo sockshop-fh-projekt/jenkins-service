@@ -66,6 +66,26 @@ pipeline {
                 currentBuild.result = 'FAILED'
                 error "Deployment - green - did not finish before timeout."
               }
+            } 
+            //TODO: adapt 
+            else if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
+              def status_blue = waitForDeployment (
+                deploymentName: "${env.SERVICE}-blue",
+                environment: "${env.STAGE}"
+              )
+              if(status_blue !=0 ){
+                currentBuild.result = 'FAILED'
+                error "Deployment - blue - did not finish before timeout."
+              }
+              
+              def status_green = waitForDeployment (
+                deploymentName: "${env.SERVICE}-green",
+                environment: "${env.STAGE}"
+              )
+              if(status_green !=0 ){
+                currentBuild.result = 'FAILED'
+                error "Deployment - green - did not finish before timeout."
+              }
             } else {
               def status = waitForDeployment (
                 deploymentName: "${env.SERVICE}",
