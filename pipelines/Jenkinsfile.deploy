@@ -83,9 +83,13 @@ pipeline {
             sh "cd ${env.PROJECT} && sed -i \"s#weight: 100#weight: 0#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             sh "cd ${env.PROJECT} && sed -i \"s#weight: swap_100#weight: 100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
-            sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba;s/destination/mirror/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            //TODO replace destination with mirror not working, alternative: remove destination and add mirror
+            //sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba;s/destination/mirror/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
             sh "cd ${env.PROJECT} && sed -i \"/-/{x;s/.*/&_/;/^______\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"/destination/{x;s/.*/&_/;/^__\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"            
             sh "cd ${env.PROJECT} && sed -i \"/weight/{x;s/.*/&_/;/^__\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"/weight/{p;s/.*/mirror/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"            
 
             sh "cd ${env.PROJECT} && git add ."
             sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green and added mirroring'"
