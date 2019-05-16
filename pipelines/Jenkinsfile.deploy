@@ -78,7 +78,7 @@ pipeline {
             sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
             sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
  
-            sh "cd ${env.PROJECT} && sed -i \"s#subset: blue#subset: swap_green\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"s#subset: blue#subset: swap_green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             sh "cd ${env.PROJECT} && sed -i \"s#subset: green#subset: blue#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             sh "cd ${env.PROJECT} && sed -i \"s#subset: swap_green#subset: green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
