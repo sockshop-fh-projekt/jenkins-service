@@ -52,11 +52,7 @@ pipeline {
                 sh "cd ${env.PROJECT} && sed -i \"/weight/{p;s/.*/destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
                 sh "cd ${env.PROJECT} && sed -i \"/weight/{p;s/.*/-/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
                 sh "cd ${env.PROJECT} && sed -i \"/subset: green/{p;s/.*/weight: 0/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml" 
-
-                sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: swap_100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s#weight: 100#weight: 0#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s#weight: swap_100#weight: 100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                
+    
                 sh "cd ${env.PROJECT} && git add ."
                 sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green and removed mirroring'"
                 sh "cd ${env.PROJECT} && git push"
