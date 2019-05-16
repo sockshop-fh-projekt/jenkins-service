@@ -84,7 +84,7 @@ pipeline {
             sh "cd ${env.PROJECT} && sed -i \"s#weight: swap_100#weight: 100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
             sh "cd ${env.PROJECT} && sed -i \"/-/{x;s/.*/&_/;/^______\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            //sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba;s/destination/mirror/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba;s/destination/mirror/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             sh "cd ${env.PROJECT} && sed -i \"/weight/{x;s/.*/&_/;/^__\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
             sh "cd ${env.PROJECT} && git add ."
