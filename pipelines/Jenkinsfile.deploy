@@ -83,7 +83,7 @@ pipeline {
             sh "cd ${env.PROJECT} && sed -i \"s/weight: 0/#marker/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
             sh "cd ${env.PROJECT} && sed -i \"/weight: 100/{p;s/.*/            mirror:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml" 
-            sh "cd ${env.PROJECT} && sed  -i \"\$(sed -n '/        host:/ =' file | tail -n 1)\"' s/        host:\\(.*\\)#m1/host:\1/' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed  -i \"\$(sed -n '/        host:/ =' file | tail -n 1)\"' s/        host:\\(.*\\)#m1/host:\\1/' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             
             //sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba; s/        subset:/seubset:/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
