@@ -66,6 +66,7 @@ pipeline {
         }
       }
       steps {
+      /*
         container("git") {
           withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
             sh "rm -rf ${env.PROJECT}"
@@ -90,6 +91,7 @@ pipeline {
             sh "cd ${env.PROJECT} && git push"
           }
         }
+        */
         container('helm') {
           sh "helm init --client-only"
           sh "cd ${env.PROJECT} && helm dep update helm-chart/"
