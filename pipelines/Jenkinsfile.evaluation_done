@@ -49,7 +49,7 @@ pipeline {
                 sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
                 sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
-                sh "cd ${env.PROJECT} && sed -i \"s/mirror:/-/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
                 //sh "cd ${env.PROJECT} && sed -i \"/subset: green/{p;s/.*/weight: 0/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml" 
                 sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"

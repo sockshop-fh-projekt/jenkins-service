@@ -66,6 +66,31 @@ pipeline {
         }
       }
       steps {
+        container("git") {
+          withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+            sh "rm -rf ${env.PROJECT}"
+            sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
+            sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
+            sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
+
+            //TODO replace destination with mirror not working, alternative: remove destination and add mirror
+            //sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba;s/destination/mirror/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
+            sh "cd ${env.PROJECT} && sed -i \"/-/{x;s/.*/&_/;/^______\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"/destination/{x;s/.*/&_/;/^__\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"            
+            
+            //sh "cd ${env.PROJECT} && sed -i \"/weight/{x;s/.*/&_/;/^__\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"s/weight: 0/#marker/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
+            sh "cd ${env.PROJECT} && sed -i \"/weight: 100/{p;s/.*/            mirror:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"   
+            sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba;s/        host:/host:/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba;s/        subset:/seubset:/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
+            sh "cd ${env.PROJECT} && git add ."
+            sh "cd ${env.PROJECT} && git commit -am '[keptn]: Added mirroring'"
+            sh "cd ${env.PROJECT} && git push"
+          }
+        }
         container('helm') {
           sh "helm init --client-only"
           sh "cd ${env.PROJECT} && helm dep update helm-chart/"
