@@ -105,7 +105,7 @@ pipeline {
       }
       steps {
         script {
-          f ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service' ) {
+          if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service' ) {
             container("git"){
               withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                 sh "rm -rf ${env.PROJECT}"
@@ -139,6 +139,7 @@ pipeline {
                   [key: 'tag', value: "${env.TAG}"]
                 ]
               )
+            }
           }
           if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
             container("git"){
