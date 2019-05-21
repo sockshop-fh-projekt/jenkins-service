@@ -73,9 +73,6 @@ pipeline {
             sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
             sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
-            //TODO replace destination with mirror not working, alternative: remove destination and add mirror
-            //sh "cd ${env.PROJECT} && sed -i \":a;N;\$!ba;s/destination/mirror/2\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-
             sh "cd ${env.PROJECT} && sed -i \"/-/{x;s/.*/&_/;/^______\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
             sh "cd ${env.PROJECT} && sed -i \"/destination/{x;s/.*/&_/;/^__\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"            
             

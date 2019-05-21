@@ -55,8 +55,8 @@ pipeline {
                 sh "cd ${env.PROJECT} && sed -i \"s#subset: green#subset: blue#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
                 sh "cd ${env.PROJECT} && sed -i \"s#subset: swap_green#subset: green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
-                sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1 #m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1 #m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
                 sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
                 sh "cd ${env.PROJECT} && git add ."
