@@ -51,13 +51,14 @@ pipeline {
                 sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
                 sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
-                //sh "cd ${env.PROJECT} && sed -i \"/subset: green/{p;s/.*/weight: 0/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml" 
-                sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-
                 sh "cd ${env.PROJECT} && sed -i \"s#subset: blue#subset: swap_green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
                 sh "cd ${env.PROJECT} && sed -i \"s#subset: green#subset: blue#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
                 sh "cd ${env.PROJECT} && sed -i \"s#subset: swap_green#subset: green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                 
+
+                sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1 #m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1 #m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
                 sh "cd ${env.PROJECT} && git add ."
                 sh "cd ${env.PROJECT} && git commit -am '[keptn]: Removed mirroring and activated new version'"
                 sh "cd ${env.PROJECT} && git push"
