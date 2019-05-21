@@ -105,7 +105,7 @@ pipeline {
       }
       steps {
         script {
-          if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service' ) {
+          f ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service' ) {
             container("git"){
               withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                 sh "rm -rf ${env.PROJECT}"
@@ -113,13 +113,9 @@ pipeline {
                 sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
                 sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
-                sh "cd ${env.PROJECT} && sed -i \"/mirror:/{x;s/.*/&_/;/^_\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"/weight/{p;s/.*/destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
-                sh "cd ${env.PROJECT} && sed -i \"/weight/{p;s/.*/-/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
-
-                //TODO in der letzten zeile hinzufügen 
-                //sh "cd ${env.PROJECT} && sed -i \"/subset: green/{p;s/.*/weight: 0/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"                  
-                sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: swap_100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s#weight: 100#weight: 0#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s#weight: swap_100#weight: 100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
                 sh "cd ${env.PROJECT} && git add ."
                 sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green due to failed evaluation.'"
@@ -143,7 +139,6 @@ pipeline {
                   [key: 'tag', value: "${env.TAG}"]
                 ]
               )
-            }
           }
           if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
             container("git"){
@@ -153,10 +148,15 @@ pipeline {
                 sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
                 sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
-                //TODO change here 
+                sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
+                sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
+                sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
 
                 sh "cd ${env.PROJECT} && git add ."
-                sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green due to failed evaluation.'"
+                sh "cd ${env.PROJECT} && git commit -am '[keptn]: Removed mirroring due to failed evaluation.'"
                 sh "cd ${env.PROJECT} && git push"
               }
             }
