@@ -260,6 +260,45 @@ pipeline {
             )
           }
         }
+        if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
+          container("git"){
+            withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+              sh "rm -rf ${env.PROJECT}"
+              sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
+              sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
+              sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
+
+              sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
+              sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
+              sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+              sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+              sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+
+              sh "cd ${env.PROJECT} && git add ."
+              sh "cd ${env.PROJECT} && git commit -am '[keptn]: Removed mirroring due to failed evaluation.'"
+              sh "cd ${env.PROJECT} && git push"
+            }
+          }
+          container("curl") {
+            sendCloudEvent(
+              receiver: 'event-broker.keptn.svc.cluster.local/keptn',
+              type: 'sh.keptn.events.configuration-changed',
+              source: 'Jenkins',
+              shkeptncontext : "${env.KEPTNCONTEXT}",
+              data: [
+                [key: 'githuborg', value: "${env.GITHUBORG}"],
+                [key: 'project', value: "${env.PROJECT}"],
+                [key: 'teststrategy', value: ""],
+                [key: 'deploymentstrategy', value: "${env.DEPLOYMENTSTRATEGY}"],
+                [key: 'stage', value: "${env.STAGE}"],
+                [key: 'service', value: "${env.SERVICE}"],
+                [key: 'image', value: "${env.IMAGE}"],
+                [key: 'tag', value: "${env.TAG}"]
+              ]
+            )
+          }
+        }
       }
     }
   }
