@@ -63,8 +63,7 @@ pipeline {
                 sh "cd ${env.PROJECT} && git commit -am '[keptn]: Removed mirroring and activated new version'"
                 sh "cd ${env.PROJECT} && git push"
               }
-            }  
-            /*     
+            }         
             container("curl") {
               sendCloudEvent(
                 receiver: 'event-broker.keptn.svc.cluster.local/keptn',
@@ -83,7 +82,6 @@ pipeline {
                 ]
               )
             }
-            */
           }
         }
       }
