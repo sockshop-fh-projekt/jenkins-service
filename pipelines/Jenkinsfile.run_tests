@@ -51,7 +51,7 @@ pipeline {
             if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service' ) {
               def status_blue = waitForDeployment (
                 deploymentName: "${env.SERVICE}-blue",
-                environment: "${env.STAGE}"
+                environment: "${env.PROJECT}-${env.STAGE}"
               )
               if(status_blue !=0 ){
                 currentBuild.result = 'FAILED'
@@ -60,27 +60,7 @@ pipeline {
               
               def status_green = waitForDeployment (
                 deploymentName: "${env.SERVICE}-green",
-                environment: "${env.STAGE}"
-              )
-              if(status_green !=0 ){
-                currentBuild.result = 'FAILED'
-                error "Deployment - green - did not finish before timeout."
-              }
-            } 
-            //TODO: adapt 
-            else if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
-              def status_blue = waitForDeployment (
-                deploymentName: "${env.SERVICE}-blue",
-                environment: "${env.STAGE}"
-              )
-              if(status_blue !=0 ){
-                currentBuild.result = 'FAILED'
-                error "Deployment - blue - did not finish before timeout."
-              }
-              
-              def status_green = waitForDeployment (
-                deploymentName: "${env.SERVICE}-green",
-                environment: "${env.STAGE}"
+                environment: "${env.PROJECT}-${env.STAGE}"
               )
               if(status_green !=0 ){
                 currentBuild.result = 'FAILED'
@@ -89,7 +69,7 @@ pipeline {
             } else {
               def status = waitForDeployment (
                 deploymentName: "${env.SERVICE}",
-                environment: "${env.STAGE}"
+                environment: "${env.PROJECT}-${env.STAGE}"
               )
               if(status !=0 ){
                 currentBuild.result = 'FAILED'
@@ -108,7 +88,7 @@ pipeline {
             def status = executeJMeter ( 
               scriptName: "${env.SERVICE}/jmeter/basiccheck.jmx", 
               resultsDir: "HealthCheck_${env.SERVICE}",
-              serverUrl: "${env.SERVICE}.${env.STAGE}", 
+              serverUrl: "${env.SERVICE}.${env.PROJECT}-${env.STAGE}", 
               serverPort: 80,
               checkPath: '/health',
               vuCount: 1,
@@ -141,7 +121,7 @@ pipeline {
             def status = executeJMeter (
               scriptName: "${env.SERVICE}/jmeter/${env.SERVICE}_load.jmx", 
               resultsDir: "FuncCheck_${env.SERVICE}",
-              serverUrl: "${env.SERVICE}.${env.STAGE}.svc.cluster.local", 
+              serverUrl: "${env.SERVICE}.${env.PROJECT}-${env.STAGE}.svc.cluster.local", 
               serverPort: 80,
               checkPath: '/health',
               vuCount: 1,
@@ -181,7 +161,7 @@ pipeline {
               def status = executeJMeter (
                 scriptName: "${env.SERVICE}/jmeter/${env.SERVICE}_load.jmx", 
                 resultsDir: "PerfCheck_${env.SERVICE}",
-                serverUrl: "${env.SERVICE}.${env.STAGE}.${GATEWAY}", 
+                serverUrl: "${env.SERVICE}.${env.PROJECT}-${env.STAGE}.${GATEWAY}", 
                 serverPort: 80,
                 checkPath: '/health',
                 vuCount: 10,
@@ -224,44 +204,21 @@ pipeline {
     }
     failure {
       script {
-        if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service'  || env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
-          if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service' ) {
-            container("git"){
-              withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                sh "rm -rf ${env.PROJECT}"
-                sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
-                sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
-                sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
-  
-                sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: swap_100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s#weight: 100#weight: 0#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s#weight: swap_100#weight: 100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-  
-                sh "cd ${env.PROJECT} && git add ."
-                sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green due to failed evaluation.'"
-                sh "cd ${env.PROJECT} && git push"
-              }
-            }
-          }
-          if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
-            container("git"){
-              withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                sh "rm -rf ${env.PROJECT}"
-                sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
-                sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
-                sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
-  
-                sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
-                sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-  
-                sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-  
-                sh "cd ${env.PROJECT} && git add ."
-                sh "cd ${env.PROJECT} && git commit -am '[keptn]: Removed mirroring due to failed evaluation.'"
-                sh "cd ${env.PROJECT} && git push"
-              }
+        if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service' ) {
+          container("git"){
+            withCredentials([usernamePassword(credentialsId: 'git-credentials-acm', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+              sh "rm -rf ${env.PROJECT}"
+              sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
+              sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
+              sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
+
+              sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: swap_100#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+              sh "cd ${env.PROJECT} && sed -i \"s#weight: 100#weight: 0#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+              sh "cd ${env.PROJECT} && sed -i \"s#weight: swap_100#weight: 100#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+
+              sh "cd ${env.PROJECT} && git add ."
+              sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green due to failed evaluation.'"
+              sh "cd ${env.PROJECT} && git push"
             }
           }
           container("curl") {
