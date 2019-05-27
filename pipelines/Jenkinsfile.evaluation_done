@@ -48,16 +48,16 @@ pipeline {
                 sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
                 sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
-                sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
-                sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"  
+                sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
 
-                sh "cd ${env.PROJECT} && sed -i \"s#subset: blue#subset: swap_green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s#subset: green#subset: blue#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s#subset: swap_green#subset: green#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s#subset: blue#subset: swap_green#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s#subset: green#subset: blue#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s#subset: swap_green#subset: green#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
 
-                sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1#m/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1#m/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+                sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
 
                 sh "cd ${env.PROJECT} && git add ."
                 sh "cd ${env.PROJECT} && git commit -am '[keptn]: Removed mirroring and activated new version'"
@@ -132,9 +132,9 @@ pipeline {
                     sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
                     sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
-                    sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: swap_100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                    sh "cd ${env.PROJECT} && sed -i \"s#weight: 100#weight: 0#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                    sh "cd ${env.PROJECT} && sed -i \"s#weight: swap_100#weight: 100#\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                    sh "cd ${env.PROJECT} && sed -i \"s#weight: 0#weight: swap_100#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+                    sh "cd ${env.PROJECT} && sed -i \"s#weight: 100#weight: 0#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+                    sh "cd ${env.PROJECT} && sed -i \"s#weight: swap_100#weight: 100#\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
 
                     sh "cd ${env.PROJECT} && git add ."
                     sh "cd ${env.PROJECT} && git commit -am '[keptn]: Switched blue green due to failed evaluation.'"
@@ -150,12 +150,12 @@ pipeline {
                     sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
                     sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
-                    sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"  
-                    sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                    sh "cd ${env.PROJECT} && sed -i \"/mirror:/{p;s/.*/                    destination:/;}\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"  
+                    sh "cd ${env.PROJECT} && sed -i \"s/mirror:/    -/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
 
-                    sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                    sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-                    sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+                    sh "cd ${env.PROJECT} && sed -i \"s/host:\\(.*\\)#m/        host:\\1#m/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+                    sh "cd ${env.PROJECT} && sed -i \"s/subset:\\(.*\\)#m/        subset:\\1#m/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+                    sh "cd ${env.PROJECT} && sed -i \"s/#marker/weight: 0/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
 
                     sh "cd ${env.PROJECT} && git add ."
                     sh "cd ${env.PROJECT} && git commit -am '[keptn]: Removed mirroring due to failed evaluation.'"
