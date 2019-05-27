@@ -71,14 +71,14 @@ pipeline {
             sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${env.GITHUBORG}/${env.PROJECT}"
             sh "cd ${env.PROJECT} && git checkout ${env.STAGE}"
 
-            sh "cd ${env.PROJECT} && sed -i \"/-/{x;s/.*/&_/;/^______\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            sh "cd ${env.PROJECT} && sed -i \"/destination/{x;s/.*/&_/;/^__\$/{x;d;};x;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"            
+            sh "cd ${env.PROJECT} && sed -i \"/-/{x;s/.*/&_/;/^______\$/{x;d;};x;}\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"/destination/{x;s/.*/&_/;/^__\$/{x;d;};x;}\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"            
             
-            sh "cd ${env.PROJECT} && sed -i \"s/        host:\\(.*\\)#m/host:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            sh "cd ${env.PROJECT} && sed -i \"s/        subset:\\(.*\\)#m/subset:\\1#m/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            sh "cd ${env.PROJECT} && sed -i \"s/weight: 0/#marker/\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"s/        host:\\(.*\\)#m/host:\\1#m/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"s/        subset:\\(.*\\)#m/subset:\\1#m/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
+            sh "cd ${env.PROJECT} && sed -i \"s/weight: 0/#marker/\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml"
 
-            sh "cd ${env.PROJECT} && sed -i \"/weight: 100/{p;s/.*/            mirror:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml" 
+            sh "cd ${env.PROJECT} && sed -i \"/weight: 100/{p;s/.*/            mirror:/;}\" helm-chart/templates/${env.SERVICE}-istio-virtual-service.yaml" 
 
             sh "cd ${env.PROJECT} && git add ."
             sh "cd ${env.PROJECT} && git commit -am '[keptn]: Added mirroring'"
