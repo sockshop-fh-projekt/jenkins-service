@@ -82,10 +82,6 @@ pipeline {
 
             sh "cd ${env.PROJECT} && sed -i \"/weight: 100/{p;s/.*/            mirror:/;}\" helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml" 
 
-            //--Test--
-            sh "cd ${env.PROJECT} && sed -i '\$d' helm-chart/templates/istio-virtual-service-${env.SERVICE}.yaml"
-            //--End test--
-
             sh "cd ${env.PROJECT} && git add ."
             sh "cd ${env.PROJECT} && git commit -am '[keptn]: Added mirroring'"
             sh "cd ${env.PROJECT} && git push"
