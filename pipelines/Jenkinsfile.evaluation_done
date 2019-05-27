@@ -74,7 +74,7 @@ pipeline {
                   [key: 'githuborg', value: "${env.GITHUBORG}"],
                   [key: 'project', value: "${env.PROJECT}"],
                   [key: 'teststrategy', value: ""],
-                  [key: 'deploymentstrategy', value: "${env.DEPLOYMENTSTRATEGY}"],
+                  [key: 'deploymentstrategy', value: "direct"],
                   [key: 'stage', value: "${env.STAGE}"],
                   [key: 'service', value: "${env.SERVICE}"],
                   [key: 'image', value: "${env.IMAGE}"],
