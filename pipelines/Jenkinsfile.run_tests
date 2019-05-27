@@ -48,7 +48,7 @@ pipeline {
         echo "Waiting for the service to start..."
         container('kubectl') {
           script {
-            if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service' ) {
+            if ( env.DEPLOYMENTSTRATEGY ==~ 'blue_green_service'  || env.DEPLOYMENTSTRATEGY ==~ 'blue_green_mirroring' ) {
               def status_blue = waitForDeployment (
                 deploymentName: "${env.SERVICE}-blue",
                 environment: "${env.PROJECT}-${env.STAGE}"
